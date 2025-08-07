@@ -1,0 +1,27 @@
+.splash-container {
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
+}
+
+.splash-overlay{
+    position:absolute;
+    top:0; left:0; right: 0; bottom:0;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 1; /*sit ontop of starfield*/
+}
+
+.splash-logo{
+    width: 120px;
+    filter: drop-shadow(0 0 10px #12B2C1);
+}
+
+.splash-title{
+    margin-top: 1rem;
+    font-size: 2.5rem;
+    color: #12B2C1;
+    text-shadow: 0 0 10px #12B2C1
+}

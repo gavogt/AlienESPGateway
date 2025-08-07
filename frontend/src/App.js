@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import {Routes, Route} from 'react-router-dom'
 import Home from './Home';
@@ -7,8 +7,15 @@ import Diagnostics from './Diagnostics';
 import Alerts from './Alerts';
 import logo from './logo.svg';
 import './App.css';
+import Splash from './Splash';
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  if(showSplash){
+    return <Splash onFinish={() => setShowSplash(false)} />;
+  }
+
   return (
     <div className="App">
       <Sidebar />
