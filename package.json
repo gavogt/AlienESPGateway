@@ -1,0 +1,12 @@
+{
+  "name": "alien-esp-gateway",
+  "version": "1.0.0",
+  "description": "Alien Cyborg ESP Gateway MERN full-stack dashboard",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm --prefix mern-backend run dev\" \"npm --prefix frontend start\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.1"
+  }
+}
