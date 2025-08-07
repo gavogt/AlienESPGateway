@@ -1,0 +1,71 @@
+.ps-sidebar-container {
+  background: linear-gradient(to bottom, #12022f, #1a063a); /* deep cosmic gradient */
+  backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(0, 255, 255, 0.1);
+  color: #e0e0ff; 
+  height: 100vh;
+  padding-top: 1rem;
+  box-shadow: 2px 0 15px rgba(0, 255, 255, 0.05);
+}
+
+/* Menu items */
+.ps-menuitem-root {
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  margin: 0.5rem 1rem;
+  transition: all 0.25s ease;
+  color: #a6b8ff;
+  font-weight: 500;
+}
+
+.ps-menuitem-root:hover {
+  background: rgba(0, 255, 255, 0.08);
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.15);
+  color: #00ffff;
+  transform: translateX(6px);
+}
+
+/* Active menu item */
+.ps-active {
+  background: rgba(0, 255, 255, 0.12);
+  font-weight: bold;
+  border-left: 4px solid #00ffff;
+  color: #00ffff;
+}
+
+/* Link text inside menu */
+.ps-menuitem-root a {
+  text-decoration: none;
+  color: #12022f;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Sidebar root container */
+.ps-sidebar-root {
+  z-index: 1000;
+}
+
+.ps-submenu-content {
+  background: rgba(18, 2, 47, 0.95) !important; /* dark purple glass-like */
+  border-radius: 8px;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.05);
+  padding: 0.5rem 0;
+}
+
+/* Submenu items inside the dropdown */
+.ps-submenu-content .ps-menuitem-root {
+  margin: 0.3rem 1rem;
+  border-radius: 8px;
+  color: #020614;
+}
+
+.ps-submenu-content .ps-menuitem-root:hover {
+  background: rgba(0, 255, 255, 0.1);
+  color: #032323;
+}
+
+.ps-open{
+    background: rgba(158, 15, 229, 0.393) !important;
+}

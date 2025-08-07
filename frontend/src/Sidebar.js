@@ -2,6 +2,7 @@ import React from 'react';
 import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';  
 import { FaSatellite, FaCogs, FaHeartbeat, FaBell } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import './Sidebar.css'; 
 
 export default function SidebarNav() {
   return (
