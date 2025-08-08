@@ -8,6 +8,7 @@ import Alerts from './Alerts';
 import logo from './logo.svg';
 import './App.css';
 import Splash from './Splash';
+import RegisterForm from './RegisterForm';
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -25,6 +26,7 @@ function App() {
           <Route path="/control" element={<Control />} />
           <Route path="/diagnostics" element={<Diagnostics />} />
           <Route path="/alerts" element={<Alerts />} />
+          <Route path="/register" element={<RegisterForm />} />
         </Routes>      
       </main>
     </div>

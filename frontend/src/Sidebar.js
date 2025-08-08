@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';  
-import { FaSatellite, FaCogs, FaHeartbeat, FaBell } from 'react-icons/fa';
+import { FaSatellite, FaCogs, FaHeartbeat, FaBell, FaRegistered } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
@@ -12,6 +12,9 @@ export default function SidebarNav() {
       <Menu iconShape="circle">
         <MenuItem icon={<FaSatellite />} onClick={() => navigate('/')}>
           Telemetry
+        </MenuItem>
+        <MenuItem icon={<FaRegistered />} onClick={() => navigate('/register')}>
+          Register
         </MenuItem>
         <MenuItem icon={<FaCogs />} onClick={() => navigate('/control')}>
           Control
