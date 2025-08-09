@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { login } from './api';
 import logo from './assets/logo.png';
 import './AuthForm.css';
+import { Session } from './SessionState';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login(){
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
@@ -12,8 +15,16 @@ export default function Login(){
         e.preventDefault();
         try{
             const data = await login(email, password);
-            setMessage(`Welcome back, ${data.user.name || data.user.email}!`);
-            localStorage.setItem('token', data.token);
+
+            Session.set({
+             firstname: data.user.firstName,
+             lastname: data.user.lastName,
+             email: data.user.email,
+             token: data.token
+            });
+
+            navigate('/dashboard');
+
         } catch (error) {
             setMessage(error.message || 'Login failed. Please try again.');
         }
