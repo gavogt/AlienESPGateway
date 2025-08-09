@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';  
-import { FaSatellite, FaCogs, FaHeartbeat, FaBell, FaRegistered } from 'react-icons/fa';
+import { FaSatellite, FaCogs, FaHeartbeat, FaBell, FaRegistered, FaSign } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
@@ -15,6 +15,9 @@ export default function SidebarNav() {
         </MenuItem>
         <MenuItem icon={<FaRegistered />} onClick={() => navigate('/register')}>
           Register
+        </MenuItem>
+        <MenuItem icon={<FaSign />} onClick={() => navigate('/login')}>
+          Sign in
         </MenuItem>
         <MenuItem icon={<FaCogs />} onClick={() => navigate('/control')}>
           Control
