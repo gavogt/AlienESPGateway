@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import logo from './assets/logo.png';
 import { register } from './api';
-import './RegisterForm.css';
+import './AuthForm.css';
 
 export default function RegisterForm() {
   const [email, setEmail] = useState('');
