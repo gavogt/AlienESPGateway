@@ -3,9 +3,16 @@ import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';
 import { FaSatellite, FaCogs, FaHeartbeat, FaBell, FaRegistered, FaSign } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import './Sidebar.css';
+import { Session } from './SessionState';
 
 export default function SidebarNav() {
   const navigate = useNavigate();
+
+  function handleLogout() {
+      Session.clear();
+      navigate('/login');
+    }
+
 
   return (
     <Sidebar breakPoint="md">
@@ -13,12 +20,23 @@ export default function SidebarNav() {
         <MenuItem icon={<FaSatellite />} onClick={() => navigate('/')}>
           Telemetry
         </MenuItem>
-        <MenuItem icon={<FaRegistered />} onClick={() => navigate('/register')}>
-          Register
-        </MenuItem>
-        <MenuItem icon={<FaSign />} onClick={() => navigate('/login')}>
-          Sign in
-        </MenuItem>
+        {!Session.currentUser && (
+          <>
+            <MenuItem icon={<FaRegistered />} onClick={() => navigate('/register')}>
+              Register
+            </MenuItem>
+            <MenuItem icon={<FaSign />} onClick={() => navigate('/login')}>
+              Sign in
+            </MenuItem>
+          </>
+        )}
+
+        {Session.currentUser && (
+          <MenuItem icon={<FaSign />} onClick={handleLogout}>
+            Logout
+          </MenuItem>
+        )}
+
         <MenuItem icon={<FaCogs />} onClick={() => navigate('/control')}>
           Control
         </MenuItem>
