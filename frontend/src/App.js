@@ -10,6 +10,7 @@ import './App.css';
 import Splash from './Splash';
 import RegisterForm from './RegisterForm';
 import Login from './Login';
+import Dashboard from './dashboard';
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -29,7 +30,8 @@ function App() {
           <Route path="/alerts" element={<Alerts />} />
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/login" element={<Login />} />
-        </Routes>      
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
       </main>
     </div>
   );

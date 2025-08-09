@@ -2,7 +2,7 @@ import React from 'react';
 import { FaSatellite, FaCogs, FaHeartbeat, FaBell } from 'react-icons/fa';
 import './Home.css';
 
-export default function Home() {
+export default function Dashboard() {
   const cards = [
     { title: 'Telemetry',  Icon: FaSatellite },
     { title: 'Control',    Icon: FaCogs      },
