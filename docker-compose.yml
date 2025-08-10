@@ -17,7 +17,7 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-
+  
   api:
     build: ./mern-backend
     container_name: api
@@ -29,6 +29,17 @@ services:
       - emqx
     ports:
       - "3000:3000"
+
+  telegraf:
+    image: telegraf:latest
+    container_name: telegraf
+    restart: unless-stopped
+    volumes:
+      - ./mern-backend/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    depends_on:
+      - emqx
+      - mongo
+
 
 volumes:
   mongo_data:
