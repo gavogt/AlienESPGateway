@@ -19,7 +19,7 @@ services:
       - mongo_data:/data/db
 
   api:
-    build: ./server
+    build: ./mern-backend
     container_name: api
     environment:
       - MONGO_URI=mongodb://mongo:27017/esp_gateway
