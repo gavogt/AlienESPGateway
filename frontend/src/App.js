@@ -11,6 +11,7 @@ import Splash from './Splash';
 import RegisterForm from './RegisterForm';
 import Login from './Login';
 import Dashboard from './dashboard';
+import Telemetry from './Telemetry';
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -31,6 +32,7 @@ function App() {
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/telemetry" element={<Telemetry />} />
         </Routes>
       </main>
     </div>

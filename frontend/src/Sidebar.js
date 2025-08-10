@@ -48,7 +48,7 @@ export default function SidebarNav() {
             <MenuItem icon={<FaSignOutAlt />} onClick={handleLogout}>
               Logout
             </MenuItem>
-            <MenuItem icon={<FaSatellite />} onClick={() => navigate('/')}>
+            <MenuItem icon={<FaSatellite />} onClick={() => navigate('/telemetry')}>
               Telemetry
             </MenuItem>
             <MenuItem icon={<FaCogs />} onClick={() => navigate('/control')}>

@@ -1,24 +1,45 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import cors from 'cors';
-import dotenv from 'dotenv';
-import authRoutes from "./routes/auth.js";
-import { requireAuth } from './middleware/auth.js';
+import mongoose from 'mongoose';
 
-dotenv.config({path: './.env'});
+const HOST = '0.0.0.0';
+const PORT = Number(process.env.PORT || 3000);
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/esp_gateway';
 
 const app = express();
-app.use(cors(), express.json());
+app.use(cors());
+app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewURLParser: true,
-  useUnifiedTopology: true
-}).then(() => console.log('MongoDB connected'));
+mongoose.connect(MONGO_URI).then(() => console.log('Mongo connected')).catch(e => {
+  console.error('Mongo connect error:', e.message);
+});
 
-// public
-app.use('/api/auth', authRoutes);
+app.get('/health', (_req, res) => res.send('ok'));
 
-app.get('/', (req, res) => res.send('Hello from Express!'));
+app.get('/api/history', async (_req, res) => {
+  try {
+    const coll = mongoose.connection.collection('telemetry');
+    const docs = await coll
+      .find({}, { projection: { time: 1, timestamp: 1, module_type: 1, 'tags.module_type': 1, value: 1, 'fields.value': 1 } })
+      .sort({ time: 1, timestamp: 1 })
+      .limit(200)
+      .toArray();
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log('Server running on port ${PORT}'));
+    const rows = docs
+      .map(d => ({
+        t: d.time || d.timestamp,
+        module_type: d.module_type ?? d?.tags?.module_type ?? 'unknown',
+        value: (typeof d.value === 'number') ? d.value : d?.fields?.value
+      }))
+      .filter(r => r.t && typeof r.value === 'number');
+
+    res.json(rows);
+  } catch (e) {
+    console.error('/api/history error:', e.message);
+    res.json([]); // simple fallback so the request never resets
+  }
+});
+
+app.listen(PORT, HOST, () => {
+  console.log(`API listening on http://${HOST}:${PORT}`);
+});
