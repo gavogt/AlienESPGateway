@@ -8,5 +8,10 @@
   },
   "devDependencies": {
     "concurrently": "^8.0.1"
+  },
+  "dependencies": {
+    "echarts": "^5.6.0",
+    "echarts-for-react": "^3.0.2",
+    "socket.io-client": "^4.8.1"
   }
 }
