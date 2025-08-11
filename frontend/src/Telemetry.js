@@ -1,81 +1,106 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { io } from 'socket.io-client';
 
-export default function TelemetryPage({ apiBase = 'http://127.0.0.1:3001' }) {
-  const [rows, setRows] = useState([]);
-  const [live, setLive] = useState([]);
-  const socketRef = useRef(null);
+export default function TelemetryPage({ apiBase }) {
+  const API =
+    apiBase ??
+    (typeof window !== 'undefined' && window.location
+      ? `${window.location.protocol}//${window.location.hostname}:3001`
+      : 'http://127.0.0.1:3001');
 
+  const [points, setPoints] = useState([]); // [{ k, t, v }]
+  const [tick, setTick] = useState(0);      // forces repaint on each event
+
+  // 1) history once
   useEffect(() => {
-    fetch(`${apiBase}/api/history?interval=1`)
+    fetch(`${API}/api/history?interval=1`)
       .then(r => r.json())
-      .then(setRows)
+      .then(rows => {
+        const pts = (rows || []).flatMap(r => {
+          if (!r?.module_type || !r?.t) return [];
+          const v = Number(r.value);
+          if (!Number.isFinite(v)) return [];
+          return [{ k: r.module_type, t: new Date(r.t).getTime(), v }];
+        });
+        setPoints(pts);
+      })
       .catch(console.error);
-  }, [apiBase]);
+  }, [API]);
 
+  // 2) live
   useEffect(() => {
-    const s = io(apiBase);
-    socketRef.current = s;
-    s.on('telemetry', doc => {
-      setLive(prev => [...prev.slice(-499), doc]);
-    });
-    return () => s.close();
-  }, [apiBase]);
+    const s = io(API, { path: '/socket.io', transports: ['polling','websocket'] });
 
-  const seriesByType = useMemo(() => {
-    const map = new Map();
-    for (const r of rows) {
-      const key = r.module_type;
-      if (!map.has(key)) map.set(key, []);
-      map.get(key).push({ name: key, value: [new Date(r.t).getTime(), r.value] });
-    }
-    for (const d of live) {
+    s.on('connect', () => console.log('socket connected', s.id));
+    s.on('connect_error', (e) => console.error('socket error:', e?.message || e));
+
+    s.on('telemetry', d => {
+      // --- minimal, forgiving normalizer 
       const t = new Date(d.time ?? d.timestamp ?? Date.now()).getTime();
-      const modType = d.module_type ?? d?.tags?.module_type;
-      const val = (typeof d.value === 'number') ? d.value : d?.fields?.value;
-      if (modType != null && typeof val === 'number') {
-        if (!map.has(modType)) map.set(modType, []);
-        map.get(modType).push({ name: modType, value: [t, val] });
-        continue;
-      }
-      if (Array.isArray(d.modules)) {
-        for (const m of d.modules) {
-          const key = m.type;
-          if (!map.has(key)) map.set(key, []);
-          map.get(key).push({ name: key, value: [t, m.value] });
-        }
-      }
-    }
-    for (const arr of map.values()) arr.sort((a, b) => a.value[0] - b.value[0]);
-    return map;
-  }, [rows, live]);
+      const k = d.module_type ?? d?.tags?.module_type ?? d?.type;
+      const v = Number(d.value ?? d?.fields?.value);
+      console.log('telemetry:', {k, t, v, raw: d}); // <-- prove frames arrive
 
+      if (k && Number.isFinite(v)) {
+        setPoints(p => [...p.slice(-999), { k, t, v }]);
+        setTick(x => x + 1); // force repaint
+      } else if (Array.isArray(d?.modules)) {
+        const rows = d.modules.flatMap(m => {
+          const vv = Number(m?.value);
+          return (m?.type && Number.isFinite(vv)) ? [{ k: m.type, t, v: vv }] : [];
+        });
+        if (rows.length) {
+          setPoints(p => {
+            const keep = Math.max(0, 1000 - rows.length);
+            return [...p.slice(-keep), ...rows];
+          });
+          setTick(x => x + 1);
+        } else {
+          console.debug('ignored telemetry (no numeric value):', d);
+        }
+      } else {
+        console.debug('ignored telemetry (shape mismatch):', d);
+      }
+    });
+
+    return () => s.close();
+  }, [API]);
+
+  // 3) chart option
   const option = useMemo(() => {
-    const series = Array.from(seriesByType.entries()).map(([key, data]) => ({
-      name: key,
-      type: 'line',
-      showSymbol: false,
-      smooth: true,
-      data
+    const groups = new Map();
+    for (const { k, t, v } of points) {
+      if (!groups.has(k)) groups.set(k, []);
+      groups.get(k).push([t, v]);
+    }
+    const series = [...groups.entries()].map(([name, data]) => ({
+      name, type: 'line', showSymbol: false, smooth: true, data
     }));
     return {
+      animation: false,
       tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
       legend: { type: 'scroll' },
       xAxis: { type: 'time' },
       yAxis: { type: 'value', scale: true },
-      series,
-      dataZoom: [{ type: 'inside' }, { type: 'slider' }]
+      dataZoom: [{ type: 'inside' }, { type: 'slider' }],
+      series
     };
-  }, [seriesByType]);
-
-  const hasData = seriesByType.size > 0;
+  }, [points]);
 
   return (
     <div style={{ padding: 16 }}>
-      <h2>Telemetry</h2>
-      {!hasData && <div style={{ opacity: 0.7, marginBottom: 8 }}>No data yet—waiting for history or live points…</div>}
-      <ReactECharts option={option} style={{ height: 420, width: '100%', minHeight: 420 }} notMerge />
+      <div style={{ fontSize: 12, opacity: 0.7, marginBottom: 6 }}>
+        Live points: {points.length} · tick: {tick}
+      </div>
+
+      {/* tick ensures repaint */}
+      <ReactECharts
+        key={tick}
+        option={option}
+        style={{ height: 420, width: '100%' }}
+        notMerge={true}
+      />
     </div>
   );
 }

@@ -3,9 +3,9 @@ services:
     image: emqx:5.8.7
     container_name: emqx
     ports:
-      - "1883:1883"     # MQTT
-      - "8083:8083"     # MQTT over WebSocket
-      - "18083:18083"   # EMQX dashboard
+      - "1883:1883"
+      - "8083:8083"
+      - "18083:18083"
     environment:
       - EMQX_DASHBOARD__DEFAULT_USERNAME=admin
       - EMQX_DASHBOARD__DEFAULT_PASSWORD=public
@@ -23,18 +23,26 @@ services:
       timeout: 5s
       retries: 30
       start_period: 20s
-  
+
   api:
     build: ./mern-backend
-    container_name: api
+    ports: ["3001:3000"]
     environment:
+      - NODE_ENV=production
+      - PORT=3000
       - MONGO_URI=mongodb://mongo:27017/esp_gateway
+      - CORS_ORIGINS=http://localhost:3002,http://127.0.0.1:3002
       - MQTT_URL=mqtt://emqx:1883
+      - MQTT_TOPIC=esp_gateway/+/telemetry   
+      - MQTT_USER=admin                     
+      - MQTT_PASS=public
+      - DEBUG_TICKER=0
     depends_on:
       mongo:
         condition: service_healthy
-    ports:
-      - "3001:3000"
+      emqx:
+        condition: service_started
+    restart: unless-stopped
 
   telegraf:
     image: telegraf:latest
@@ -46,6 +54,21 @@ services:
       - emqx
       - mongo
 
+  frontend:
+    image: node:20-alpine
+    container_name: frontend
+    working_dir: /app
+    command: sh -lc "npm install && PORT=3002 npm start"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    ports:
+      - "3002:3002"
+    depends_on:
+      - api
 
 volumes:
   mongo_data:
+  frontend_node_modules:
