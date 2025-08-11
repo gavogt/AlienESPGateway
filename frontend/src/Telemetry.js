@@ -67,6 +67,15 @@ export default function TelemetryPage({ apiBase }) {
     return () => s.close();
   }, [API]);
 
+    // change colors as needed of the lines on the chart
+    const COLORS = {
+    BIO:    '#f003dcff', 
+    NEURO:  '#86EFAC', 
+    PLASMA: '#FDE68A', 
+    PING:   '#FCA5A5',
+    default:'#E5E7EB'
+    };
+
   // 3) chart option
   const option = useMemo(() => {
     const groups = new Map();
@@ -75,12 +84,23 @@ export default function TelemetryPage({ apiBase }) {
       groups.get(k).push([t, v]);
     }
     const series = [...groups.entries()].map(([name, data]) => ({
-      name, type: 'line', showSymbol: false, smooth: true, data
+        name,
+        type: 'line',
+        showSymbol: false,
+        smooth: true,
+        data,
+        lineStyle: { width: 2, color: COLORS[name] ?? COLORS.default },
+        itemStyle: { color: COLORS[name] ?? COLORS.default },
     }));
     return {
       animation: false,
       tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-      legend: { type: 'scroll' },
+      legend: {
+        type: 'scroll',
+        top: 8,
+        textStyle: { color: '#aeeadcff', fontWeight: 600 },   // legend label color
+        inactiveColor: 'rgba(181, 181, 181, 0.51)',            // when toggled off
+        },
       xAxis: { type: 'time' },
       yAxis: { type: 'value', scale: true },
       dataZoom: [{ type: 'inside' }, { type: 'slider' }],
@@ -96,7 +116,7 @@ export default function TelemetryPage({ apiBase }) {
 
       {/* tick ensures repaint */}
       <ReactECharts
-        key={tick}
+        key={Date.now()}
         option={option}
         style={{ height: 420, width: '100%' }}
         notMerge={true}
