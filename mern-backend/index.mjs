@@ -5,7 +5,7 @@ import mongoose from 'mongoose';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { connect as mqttConnect } from 'mqtt';
-
+import authRouter from "./routes/auth.js";
 // --- config
 const HOST        = '0.0.0.0';
 const PORT        = Number(process.env.PORT || 3000);
@@ -19,7 +19,7 @@ const app = express();
 app.disable('x-powered-by');
 app.use(express.json());
 app.use(cors({ origin: (origin, cb) => cb(null, true) })); // open while developing
-
+app.use("/api/auth", authRouter)
 app.get('/health', (_req, res) => res.send('ok'));
 
 const server = http.createServer(app);

@@ -6,6 +6,10 @@ import User from "../models/User.js";
 
 const router = express.Router();
 
+// debug route to check if the API is reachable
+// GET /api/auth/_ping
+router.get("/_ping", (_req, res) => res.json({ ok: true, where: "/api/auth" }));
+
 // POST /api/auth/register
 router.post(
   "/register",
