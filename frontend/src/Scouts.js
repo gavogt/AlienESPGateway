@@ -18,7 +18,7 @@ export default function Scouts() {
   }, [token]);
 
   const cmd = (id, type) =>
-    fetch(`${API}/api/scouts/${id}/command`, {
+    fetch(`${API}/api/scouts/${id}/cmd`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ type })

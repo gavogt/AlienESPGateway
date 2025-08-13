@@ -37,3 +37,5 @@ req.app.get("mqPublish")?.(req.params.id, { type, params});
 res.json({ok: true});
 
 });
+
+export default router;
