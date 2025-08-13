@@ -107,6 +107,14 @@ mq.on('message', async (topic, buf) => {
   io.emit('telemetry', doc);
   try { await mongoose.connection.collection('telemetry').insertOne({ ...doc, topic }); } catch {}
 
+  io.emit('scout_status', {
+    scoutId,
+    status: 'online',
+    lastSeenAt: new Date().toISOString(),
+    lastModule: doc.module_type,
+    lastValue: doc.value
+  })
+
   try {
     const now = new Date();
     await mongoose.connection.collection('scouts').updateOne(
