@@ -5,6 +5,7 @@ import {
   FaCogs,
   FaHeartbeat,
   FaBell,
+  FaRobot,
   FaHome,
   FaRegistered,
   FaSignInAlt,
@@ -50,6 +51,9 @@ export default function SidebarNav() {
             </MenuItem>
             <MenuItem icon={<FaSatellite />} onClick={() => navigate('/telemetry')}>
               Telemetry
+            </MenuItem>
+            <MenuItem icon={<FaRobot />} onClick={() => navigate('/scouts')}>
+              Scouts
             </MenuItem>
             <MenuItem icon={<FaCogs />} onClick={() => navigate('/control')}>
               Control
