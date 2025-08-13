@@ -5,30 +5,27 @@ import mongoose from 'mongoose';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { connect as mqttConnect } from 'mqtt';
-import authRouter from "./routes/auth.js";
-import scoutsRouter from "./routes/Scouts.js";
+import authRouter from './routes/auth.js';
+import scoutsRouter from './routes/Scouts.js';
 
-// --- config
-const HOST        = '0.0.0.0';
-const PORT        = Number(process.env.PORT || 3000);
-const MONGO_URI   = process.env.MONGO_URI   || 'mongodb://mongo:27017/esp_gateway';
-const MQTT_URL    = process.env.MQTT_URL    || 'mqtt://emqx:1883';
-const MQTT_TOPIC  = process.env.MQTT_TOPIC  || 'esp_gateway/+/telemetry'; // <- adjust if needed
-const CORS_ORIGNS = (process.env.CORS_ORIGINS || '*').split(',');
+const HOST = '0.0.0.0';
+const PORT = Number(process.env.PORT || 3000);
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/esp_gateway';
+const MQTT_URL = process.env.MQTT_URL || 'mqtt://emqx:1883';
+const MQTT_TOPIC = process.env.MQTT_TOPIC || 'esp_gateway/+/telemetry';
+const CORS_ORIGINS = (process.env.CORS_ORIGINS || '*').split(',');
 
-// --- app & sockets ---
 const app = express();
 app.disable('x-powered-by');
 app.use(express.json());
-app.use(cors({ origin: (origin, cb) => cb(null, true) })); // open while developing
-app.use("/api/auth", authRouter)
-app.use("/api/scouts", scoutsRouter);
+app.use(cors({ origin: (origin, cb) => cb(null, true) }));
+app.use('/api/auth', authRouter);
+app.use('/api/scouts', scoutsRouter);
 app.get('/health', (_req, res) => res.send('ok'));
 
 const server = http.createServer(app);
-const io = new SocketIOServer(server, { path: '/socket.io', cors: { origin: CORS_ORIGNS }});
+const io = new SocketIOServer(server, { path: '/socket.io', cors: { origin: CORS_ORIGINS } });
 
-// --- mongo ---
 mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 5000 })
   .then(() => console.log('Mongo connected'))
   .catch(e => console.error('Mongo connect error:', e.message));
@@ -55,16 +52,13 @@ app.get('/api/history', async (_req, res) => {
   }
 });
 
-// --- optional debug ticker (disable in prod) ---
 if (process.env.DEBUG_TICKER === '1') {
   setInterval(() => {
     const doc = { time: new Date().toISOString(), module_type: 'PING', value: 20 + Math.random() * 5 };
-    console.log('emit telemetry (debug)', doc);
     io.emit('telemetry', doc);
   }, 2000);
 }
 
-// --- EMQX (MQTT) -> Socket.IO (+ persist) ---
 const mq = mqttConnect(MQTT_URL, {
   username: process.env.MQTT_USER,
   password: process.env.MQTT_PASS,
@@ -76,10 +70,14 @@ mq.on('connect', () => {
   mq.subscribe(MQTT_TOPIC, { qos: 0 }, err => err && console.error('MQTT subscribe error:', err.message));
 });
 
+app.set('mqPublish', (scoutId, msg) => {
+  const topic = `esp_gateway/${scoutId}/command`;
+  mq.publish(topic, JSON.stringify(msg), { qos: 0 });
+});
+
 mq.on('message', async (topic, buf) => {
   const txt = buf.toString();
 
-  // accept JSON or plain numeric payloads
   let msg;
   try { msg = JSON.parse(txt); } catch {}
   if (!msg) {
@@ -88,27 +86,46 @@ mq.on('message', async (topic, buf) => {
   }
   if (!msg) return;
 
-  // timestamp normalization
   const toMs = (x) => {
     const n = Number(x);
     if (Number.isFinite(n)) {
-      if (n < 1e12) return n * 1000;        // seconds -> ms
-      if (n > 1e14) return Math.floor(n/1e6); // nanoseconds -> ms
-      return n;                              // already ms
+      if (n < 1e12) return n * 1000;
+      if (n > 1e14) return Math.floor(n / 1e6);
+      return n;
     }
     return new Date(x ?? Date.now()).getTime();
   };
 
-  const ms  = toMs(msg.time ?? msg.timestamp ?? Date.now());
+  const ms = toMs(msg.time ?? msg.timestamp ?? Date.now());
   const mod = msg.module_type ?? msg?.tags?.module_type ?? msg.type ?? (topic.split('/')[2] || 'UNKNOWN');
   const val = Number(msg.value ?? msg?.fields?.value);
-
+  const scoutId = topic.split('/')[1] || 'UNKNOWN';
   if (!mod || !Number.isFinite(val)) return;
 
   const doc = { time: new Date(ms).toISOString(), module_type: mod, value: val };
 
   io.emit('telemetry', doc);
   try { await mongoose.connection.collection('telemetry').insertOne({ ...doc, topic }); } catch {}
+
+  try {
+    const now = new Date();
+    await mongoose.connection.collection('scouts').updateOne(
+      { scoutId },
+      {
+        $set: { status: 'online', lastSeenAt: now },
+        $setOnInsert: { firmware: '' },
+        $addToSet: { modules: { type: mod, unit: '' } }
+      },
+      { upsert: true }
+    );
+    await mongoose.connection.collection('scouts').updateOne(
+      { scoutId, 'modules.type': mod },
+      { $set: { 'modules.$.lastValue': val, 'modules.$.lastSeenAt': now } }
+    );
+    io.emit('scout_status', { scoutId, status: 'online', lastSeenAt: now.toISOString(), lastModule: mod, lastValue: val });
+  } catch (e) {
+    console.error('scout upsert error:', e.message);
+  }
 });
 
 io.on('connection', s => console.log('socket connected', s.id));
