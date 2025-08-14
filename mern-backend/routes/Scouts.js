@@ -28,7 +28,7 @@ router.patch("/:id", async (req, res) => {
   res.json(s);
 });
 
-router.post("/:id/command", async (req, res) => {
+router.post("/:id/cmd", async (req, res) => {
 const { type, params } = req.body || {};
 if(!type) return res.status(400).json({ message: "Missing command type is required" });
 
