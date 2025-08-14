@@ -71,7 +71,7 @@ mq.on('connect', () => {
 });
 
 app.set('mqPublish', (scoutId, msg) => {
-  const topic = `esp_gateway/${scoutId}/command`;
+  const topic = `esp_gateway/${scoutId}/cmd`;
   mq.publish(topic, JSON.stringify(msg), { qos: 0 });
 });
 
