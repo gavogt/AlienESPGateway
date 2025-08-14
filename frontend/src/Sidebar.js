@@ -55,17 +55,6 @@ export default function SidebarNav() {
             <MenuItem icon={<FaRobot />} onClick={() => navigate('/scouts')}>
               Scouts
             </MenuItem>
-            <MenuItem icon={<FaCogs />} onClick={() => navigate('/control')}>
-              Control
-            </MenuItem>
-            <SubMenu icon={<FaHeartbeat />} label="Diagnostics">
-              <MenuItem onClick={() => navigate('/diagnostics/logs')}>
-                Logs
-              </MenuItem>
-              <MenuItem icon={<FaBell />} onClick={() => navigate('/alerts')}>
-                Alerts
-              </MenuItem>
-            </SubMenu>
           </>
         )}
 
