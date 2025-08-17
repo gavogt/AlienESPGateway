@@ -1,0 +1,4 @@
+MONGO_URI=mongodb://localhost:27017/nameofdb
+JWT_SECRET=randomlongstring
+JWT_EXPIRES=7d
+OPENAI_API_KEY=secretkeyhere
