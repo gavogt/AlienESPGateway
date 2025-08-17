@@ -70,7 +70,10 @@ export default function TelemetryPage({ apiBase }) {
       const r = await fetch(`${API}/api/ai/query`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ q: aiQ }),
+        body: JSON.stringify({ 
+          q: aiQ,
+          data: points.slice(-300)
+        }),
       });
       const j = await r.json();
       setAiA(j?.narrative || "No answer");

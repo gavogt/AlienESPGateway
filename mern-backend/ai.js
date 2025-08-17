@@ -9,9 +9,9 @@ export async function runInsightQuery(q, data =[]){
         {role: "system", content: "You are an AI assistant that provides insights based on telemetry data as a brief telemetry analyst."},
         {role: "user", content: q}
     ];
-    if(Array.isArray(data) && data.length > 0) {
+    if(data.length){
         const slim = data.slice(-300).map(p => [p.k, p.t, p.v]);
-        messages.push({role: "user", content: `Recent points [module,time,value] JSON: ${JSON.stringify(slim)}`});
+        messages.push({ role: "user", content: "Recent points [module,time,value] JSON:\n" + JSON.stringify(slim) });
     }
 
     const response = await openai.responses.create({model: MODEL, input:messages});
