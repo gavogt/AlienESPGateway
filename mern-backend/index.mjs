@@ -7,9 +7,10 @@ import { Server as SocketIOServer } from 'socket.io';
 import { connect as mqttConnect } from 'mqtt';
 import authRouter from './routes/auth.js';
 import scoutsRouter from './routes/Scouts.js';
+import { runInsightQuery } from "./ai.js";
 
 const HOST = '0.0.0.0';
-const PORT = Number(process.env.PORT || 3000);
+const PORT = Number(process.env.PORT || 3001);
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/esp_gateway';
 const MQTT_URL = process.env.MQTT_URL || 'mqtt://emqx:1883';
 const MQTT_TOPIC = process.env.MQTT_TOPIC || 'esp_gateway/+/telemetry';
@@ -133,6 +134,23 @@ mq.on('message', async (topic, buf) => {
     io.emit('scout_status', { scoutId, status: 'online', lastSeenAt: now.toISOString(), lastModule: mod, lastValue: val });
   } catch (e) {
     console.error('scout upsert error:', e.message);
+  }
+});
+
+app.post("/api/ai/query", async (req, res) => {
+  try {
+    const { q, data } = req.body || {};
+    if (!q || typeof q !== "string") {
+      return res.status(400).json({ error: "Invalid query" });
+    }
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(500).json({ error: "Server is missing OPENAI_API_KEY" });
+    }
+    const result = await runInsightQuery(q, data);
+    res.json(result);
+  } catch (e) {
+    console.error("/api/ai/query error:", e?.response?.data || e?.message || e);
+    res.status(500).json({ error: "AI query failed on server" });
   }
 });
 
