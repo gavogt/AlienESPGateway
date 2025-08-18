@@ -4,7 +4,8 @@
   "description": "Alien Cyborg ESP Gateway MERN full-stack dashboard",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"npm --prefix mern-backend run dev\" \"npm --prefix frontend start\""
+    "dev": "concurrently \"npm --prefix mern-backend run dev\" \"npm --prefix frontend start\"",
+    "mcp:dev": "tsx mcp/mcp-server.ts"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",

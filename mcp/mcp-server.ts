@@ -10,9 +10,9 @@ const server = new McpServer({
 });
 
 const Point = z.object({
-    k: z.string(), // Key
-    t: z.number(), // Timestamp
-    v: z.number(), // Value
+    k: z.string(), 
+    t: z.number(), 
+    v: z.number(), 
 });
 
 // Register tools
@@ -24,7 +24,6 @@ server.registerTool(
     inputSchema: analyzeInsightsTool.schema,
   },
   async (args) => {
-    // delegate to tool.run; ensure it returns { content: [...] } with as const
     return await analyzeInsightsTool.run(args as any);
   }
 );
@@ -42,4 +41,14 @@ server.registerTool(
 );
 
 const transport = new StdioServerTransport();
-await server.connect(transport);
+
+(async () => {
+    try{
+        await server.connect(transport);
+
+    }
+catch (error) {
+        console.error("Error connecting to MCP server:", error);
+        process.exit(1);
+    }
+})
