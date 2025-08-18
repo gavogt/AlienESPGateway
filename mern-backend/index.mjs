@@ -7,7 +7,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import { connect as mqttConnect } from 'mqtt';
 import authRouter from './routes/auth.js';
 import scoutsRouter from './routes/Scouts.js';
-import { runInsightQuery } from "./ai.js";
+import { detectAnomalies, runInsightQuery } from "./ai.js";
 
 const HOST = '0.0.0.0';
 const PORT = Number(process.env.PORT || 3001);
@@ -151,6 +151,17 @@ app.post("/api/ai/query", async (req, res) => {
   } catch (e) {
     console.error("/api/ai/query error:", e?.response?.data || e?.message || e);
     res.status(500).json({ error: "AI query failed on server" });
+  }
+});
+
+app.post("/api/ai/anomalies", async(req, res) => {
+  try{
+    const { points } = req.body || {};
+    const anomalies = detectAnomalies(points || []);
+    res.json({anomalies});
+  } catch (e) {
+    console.error("/api/ai/anomalies error:", e.message);
+    res.status(500).json({ error: "Anomaly detection failed" });
   }
 });
 

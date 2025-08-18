@@ -82,6 +82,33 @@ export default function TelemetryPage({ apiBase }) {
     }
   }
 
+  async function findAnomalies() {
+    setAiA("Finding anomalies…");
+    try {
+      const r = await fetch(`${API}/api/ai/anomalies`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ points }),
+      });
+      if (!r.ok) throw new Error((await r.json())?.error || "Server error");
+      const j = await r.json();
+      const list = Array.isArray(j.anomalies) ? j.anomalies : [];
+      setAiA(
+        list.length
+          ? `Found ${list.length} anomalies:\n` +
+              list
+                .map(
+                  (a) =>
+                    `- ${a.k} at ${new Date(a.t).toLocaleString()}: ${a.v}`
+                )
+                .join("\n")
+          : "No anomalies found"
+      );
+    } catch {
+      setAiA("Anomaly detection failed");
+    }
+  }
+
   // Colors
   const COLORS = {
     BIO: "#f003dcff",
@@ -152,6 +179,10 @@ export default function TelemetryPage({ apiBase }) {
         {aiA && (
           <p style={{ whiteSpace: "pre-wrap", marginTop: 8, fontSize: 14 }}>{aiA}</p>
         )}
+
+        <button onClick={findAnomalies} style={{ marginTop: 8 }}>
+          Find Anomalies
+        </button>
       </div>
     </div>
   );
