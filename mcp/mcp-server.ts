@@ -8,10 +8,10 @@ import dotenv from "dotenv";
 
 dotenv.config({ quiet: true});
 
-console.log(
-  "OPENAI_API_KEY loaded?",
-  process.env.OPENAI_API_KEY ? "yes!" : "❌ no"
-);
+if (!process.env.OPENAI_API_KEY?.trim()) {
+  console.error("OPENAI_API_KEY missing or empty");
+  process.exit(1);
+}
 
 const server = new McpServer({
     name: "alien-temeletry-mcp",
@@ -50,14 +50,4 @@ server.registerTool(
 );
 
 const transport = new StdioServerTransport();
-
-(async () => {
-    try{
-        await server.connect(transport);
-
-    }
-catch (error) {
-        console.error("Error connecting to MCP server:", error);
-        process.exit(1);
-    }
-})
+await server.connect(transport);
