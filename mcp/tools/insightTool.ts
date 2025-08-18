@@ -1,22 +1,20 @@
 import { z } from "zod";
-import { runInsightQuery } from "../../mern-backend/ai.js"; 
+import { runInsightQuery } from "../../mern-backend/ai.js"; // or ../ai if that's your path
+import { text } from "../mcp-utils.js";
+
+const Point = z.object({ k: z.string(), t: z.number(), v: z.number() });
 
 export const analyzeInsightsTool = {
   name: "analyze_insights",
-  schema: z.object({
+  schema: {
     query: z.string(),
-    points: z.array(
-      z.object({
-        k: z.string(),
-        t: z.number(),
-        v: z.number(),
-      })
-    ).default([]),
-  }),
-  async run({ query, points }) {
+    points: z.array(Point).default([]),
+  },
+  async run(
+    { query, points }: { query: string; points: Array<z.infer<typeof Point>> },
+    _extra?: unknown
+  ) {
     const result = await runInsightQuery(query, points);
-    return {
-      content: [{ type: "text", text: result.narrative ?? "No answer" }],
-    };
+    return { content: [text(result?.narrative ?? "No answer")] };
   },
 };

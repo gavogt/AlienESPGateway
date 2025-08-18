@@ -1,0 +1,1 @@
+export const text = (s: string) => ({ type: "text" as const, text: s });
