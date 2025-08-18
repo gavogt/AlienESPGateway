@@ -174,15 +174,14 @@ export default function TelemetryPage({ apiBase }) {
             placeholder='Try: "Show last week’s highest NeuroFlux spikes"'
             style={{ flex: 1, padding: 8 }}
           />
-          <button disabled={!aiQ.trim()}>Ask</button>
+          <button type="submit" disabled={!aiQ.trim()}>Ask</button>
+          <button type="button" onClick={findAnomalies}>
+            Find Anomalies
+          </button>
         </form>
         {aiA && (
           <p style={{ whiteSpace: "pre-wrap", marginTop: 8, fontSize: 14 }}>{aiA}</p>
         )}
-
-        <button onClick={findAnomalies} style={{ marginTop: 8 }}>
-          Find Anomalies
-        </button>
       </div>
     </div>
   );
