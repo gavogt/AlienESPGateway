@@ -30,16 +30,16 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - MONGO_URI=mongodb://mongo:27017/esp_gateway
+      - MONGO_URI=mongodb://host.docker.internal:27017/esp_gateway
       - CORS_ORIGINS=http://localhost:3002,http://127.0.0.1:3002
       - MQTT_URL=mqtt://emqx:1883
-      - MQTT_TOPIC=esp_gateway/+/telemetry   
-      - MQTT_USER=admin                     
+      - MQTT_TOPIC=esp_gateway/+/telemetry
+      - MQTT_USER=admin
       - MQTT_PASS=public
       - DEBUG_TICKER=0
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
-      mongo:
-        condition: service_healthy
       emqx:
         condition: service_started
     restart: unless-stopped

@@ -7,6 +7,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import { connect as mqttConnect } from 'mqtt';
 import authRouter from './routes/auth.js';
 import scoutsRouter from './routes/Scouts.js';
+import fetchpointsRouter from './routes/fetchpoints.js';
 import { detectAnomalies, runInsightQuery } from "./ai.js";
 
 const HOST = '0.0.0.0';
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use(cors({ origin: (origin, cb) => cb(null, true) }));
 app.use('/api/auth', authRouter);
 app.use('/api/scouts', scoutsRouter);
+app.use('/api/telemetry', fetchpointsRouter);
 app.get('/health', (_req, res) => res.send('ok'));
 
 const server = http.createServer(app);
@@ -162,6 +164,23 @@ app.post("/api/ai/anomalies", async(req, res) => {
   } catch (e) {
     console.error("/api/ai/anomalies error:", e.message);
     res.status(500).json({ error: "Anomaly detection failed" });
+  }
+});
+
+app.get('/api/debug/where', async (_req, res) => {
+  try {
+    await mongoose.connection.asPromise(); // wait until connected
+    const db = mongoose.connection.db;
+    const scouts = db ? await db.collection('scouts').countDocuments() : -1;
+    const telemetry = db ? await db.collection('telemetry').countDocuments() : -1;
+    res.json({
+      mongoUri: process.env.MONGO_URI,
+      readyState: mongoose.connection.readyState, // 1=connected
+      scoutsCount: scouts,
+      telemetryCount: telemetry
+    });
+  } catch (e) {
+    res.status(500).json({ error: e?.message || String(e) });
   }
 });
 
