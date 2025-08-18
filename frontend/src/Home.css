@@ -1,11 +1,31 @@
+:root {
+  --starlight-cyan: #00ffff;
+  --void-purple: #160638;
+  --signal-gold: #ffb800;
+
+  /* helpful neutrals & glows */
+  --on-dark: #ffffff;
+  --text-muted: rgba(255,255,255,0.75);
+  --text-soft: rgba(255,255,255,0.65);
+  --cyan-glow: rgba(0,255,255,0.66);
+  --cyan-glow-soft: rgba(0,255,255,0.10);
+}
+
+/* Base */
 body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+
+  /* Void Purple canvas with a soft cyan vignette */
+  background:
+    radial-gradient(1000px circle at 15% 10%, var(--cyan-glow-soft), transparent 40%),
+    linear-gradient(135deg, #0b031e, var(--void-purple) 60%, #0b031e);
   background-attachment: fixed;
-  color: #fff;
+
+  color: var(--on-dark);
 }
 
+/* Layout */
 .home-container {
   padding: 3rem 2rem;
   max-width: 1200px;
@@ -14,15 +34,14 @@ body {
 
 .hero {
   text-align: center;
-  margin-bottom: 4rem;
   margin: 0 0 1rem;
 }
 
 .hero h1 {
   font-size: 3rem;
   margin-bottom: 1rem;
-  color: #00ffff;
-  text-shadow: 0 0 10px #00ffffaa;
+  color: var(--starlight-cyan);
+  text-shadow: 0 0 10px var(--cyan-glow);
 }
 
 .hero-img{
@@ -33,15 +52,16 @@ body {
   display: inline-block;
   box-shadow: 0 6px 20px rgba(0,0,0,0.35);
 }
+
 .hero p {
   font-size: 1.3rem;
-  color: #ccc;
+  color: var(--text-muted);
 }
 
 .caption{
   margin-top: 0.5rem;
   font-size: 0.85rem;
-  color: #a6b8ff;
+  color: var(--signal-gold);
   text-align: center;
 }
 
@@ -72,26 +92,31 @@ body {
   box-shadow: 0 6px 20px rgba(0,0,0,0.35);
 }
 
+/* Content */
 bio p {
   margin: 0 0 0.75rem;
 }
+
+/* CTA */
 .cta {
   margin-top: 1.5rem;
   padding: 0.8rem 2rem;
   font-size: 1.1rem;
-  background: #00ffff;
-  color: #000;
+  background: var(--starlight-cyan);
+  color: var(--void-purple);
   border: none;
   border-radius: 25px;
-  box-shadow: 0 0 15px #00ffff80;
+  box-shadow: 0 0 15px var(--cyan-glow);
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .cta:hover {
   transform: scale(1.05);
+  box-shadow: 0 0 20px var(--cyan-glow);
 }
 
+/* Cards */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -104,28 +129,28 @@ bio p {
   padding: 2rem 1.5rem;
   text-align: center;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 25px rgba(0, 255, 255, 0.1);
+  border: 1px solid rgba(255, 184, 0, 0.18); /* signal-gold tint */
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.10);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.20);
 }
 
 .icon {
   margin-bottom: 1rem;
-  color: #00ffff;
+  color: var(--starlight-cyan);
 }
 
 .card h3 {
   margin-bottom: 0.5rem;
   font-size: 1.5rem;
-  color: #fff;
+  color: var(--on-dark);
 }
 
 .card p {
-  color: #ccc;
+  color: var(--text-soft);
   font-size: 1rem;
 }
