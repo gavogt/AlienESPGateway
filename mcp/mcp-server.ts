@@ -4,6 +4,10 @@ import { findAnomaliesTool } from "./tools/anomalyTool.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { runInsightQuery } from "../mern-backend/ai.js";
+import dotenv from "dotenv";
+
+dotenv.config();
+
 const server = new McpServer({
     name: "alien-temeletry-mcp",
     version: "1.0.0",
