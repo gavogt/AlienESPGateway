@@ -1,7 +1,12 @@
 {
-    "servers":{
-        "Github":{
-            "url": "https://api.githubcopilot.com/mcp/"
+    "servers": {
+        "AlienESPGateway": {
+            "type": "stdio",
+            "command": "npm",
+            "args": ["run", "mcp:dev"],
+            "env":{
+                "OPENAI_API_KEY": "${env:OPENAI_API_KEY}"
+            }
         }
     }
 }

@@ -8,6 +8,11 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+console.log(
+  "OPENAI_API_KEY loaded?",
+  process.env.OPENAI_API_KEY ? "yes!" : "❌ no"
+);
+
 const server = new McpServer({
     name: "alien-temeletry-mcp",
     version: "1.0.0",
