@@ -6,7 +6,7 @@ import { z } from "zod";
 import { runInsightQuery } from "../mern-backend/ai.js";
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config({ quiet: true});
 
 console.log(
   "OPENAI_API_KEY loaded?",

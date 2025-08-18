@@ -1,12 +1,10 @@
 {
-    "servers": {
-        "AlienESPGateway": {
-            "type": "stdio",
-            "command": "npm",
-            "args": ["run", "mcp:dev"],
-            "env":{
-                "OPENAI_API_KEY": "${env:OPENAI_API_KEY}"
-            }
-        }
+  "servers": {
+    "AlienESPGateway": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "tsx", "mcp/mcp-server.ts"],
+      "envFile": "${workspaceFolder}/.env"
     }
+  }
 }

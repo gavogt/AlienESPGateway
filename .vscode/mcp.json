@@ -1,0 +1,14 @@
+{
+	"servers": {
+		"AlienESPGateway": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"tsx",
+				"mcp/mcp-server.ts"
+			]
+		}
+	},
+	"inputs": []
+}
